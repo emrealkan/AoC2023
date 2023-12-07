@@ -32,6 +32,29 @@ fun main() {
         return sumOfGameIds
     }
 
-    val part1Input = readFile("day2/Part1")
-    println("Part One: ${part1(part1Input)}")
+    fun part2(lines: List<String>): Int {
+        val BAG_DETAIL_PATTERN = "(?<number>\\d+) (?<color>red|green|blue)".toRegex()
+        var sumOfCubes = 0
+
+        lines.map { line ->
+            val map = mutableMapOf("red" to 0, "green" to 0, "blue" to 0)
+            val (_, bagDetails) = line.split(':')
+
+            bagDetails.split(";").map { bagDetail ->
+                BAG_DETAIL_PATTERN.findAll(bagDetail)
+                    .associate { it.groups["color"]!!.value to it.groups["number"]!!.value.toInt() }
+                    .forEach { entry ->
+                        if (entry.value > map.get(entry.key)!!) {
+                            map.put(entry.key, entry.value)
+                        }
+                    }
+            }
+            sumOfCubes += map.values.reduce { a, b -> a * b }
+        }
+        return sumOfCubes
+    }
+
+    val input = readFile("day2/Part1&2")
+    println("Part One: ${part1(input)}")
+    println("Part Two: ${part2(input)}")
 }
