@@ -2,11 +2,12 @@ package day2
 
 import readFile
 
+val GAME_INFO_PATTERN = "Game (?<gameId>\\d+)".toRegex()
+val BAG_DETAIL_PATTERN = "(?<number>\\d+) (?<color>red|green|blue)".toRegex()
+
 fun main() {
 
     fun part1(lines: List<String>): Int {
-        val GAME_INFO_PATTERN = "Game (?<gameId>\\d+)".toRegex()
-        val BAG_DETAIL_PATTERN = "(?<number>\\d+) (?<color>red|green|blue)".toRegex()
         val map = mutableMapOf("red" to 12, "green" to 13, "blue" to 14)
         var sumOfGameIds = 0
 
@@ -19,7 +20,7 @@ fun main() {
                 BAG_DETAIL_PATTERN.findAll(bagDetail)
                     .associate { it.groups["color"]!!.value to it.groups["number"]!!.value.toInt() }
                     .forEach { entry ->
-                        if (entry.value > map.get(entry.key)!!) {
+                        if (entry.value > map[entry.key]!!) {
                             isBagValid = false
                         }
                     }
@@ -33,7 +34,6 @@ fun main() {
     }
 
     fun part2(lines: List<String>): Int {
-        val BAG_DETAIL_PATTERN = "(?<number>\\d+) (?<color>red|green|blue)".toRegex()
         var sumOfCubes = 0
 
         lines.map { line ->
@@ -44,8 +44,8 @@ fun main() {
                 BAG_DETAIL_PATTERN.findAll(bagDetail)
                     .associate { it.groups["color"]!!.value to it.groups["number"]!!.value.toInt() }
                     .forEach { entry ->
-                        if (entry.value > map.get(entry.key)!!) {
-                            map.put(entry.key, entry.value)
+                        if (entry.value > map[entry.key]!!) {
+                            map[entry.key] = entry.value
                         }
                     }
             }
