@@ -2,6 +2,7 @@ package day5
 
 import util.readFile
 
+val SEED_RAW_PATTERN = ("\\s".toRegex())
 val DIGIT_RAW_PATTERN = ("\\d+ \\d+ \\d+".toRegex())
 val MAP_RAW_PATTERN = (".* map:".toRegex())
 
@@ -30,7 +31,9 @@ data class CategoryMap(
 fun main() {
 
     fun getParsedData(lines: List<String>): Pair<MutableList<CategoryMap>, List<Long>> {
-        val seeds = lines[0].removePrefix("seeds: ").trim().split("\\s".toRegex()).map { it.toLong() }
+        val seeds =
+            lines[0].removePrefix("seeds: ").trim().split(SEED_RAW_PATTERN).map { it.toLong() }
+
         val categoriesMap = mutableListOf<CategoryMap>()
         var rangeMappers = mutableListOf<RangeMap>()
         var sourceName = ""
@@ -56,30 +59,36 @@ fun main() {
         return Pair(first = categoriesMap, second = seeds)
     }
 
+    fun getMatchedSeed(categoriesMap: MutableList<CategoryMap>, seed: Long): Long {
+        val categoryBySourceName = categoriesMap.associateBy { it.sourceName }
+        var seedMappingResult = Pair(seed, "seed")
+        while (seedMappingResult.second != "location") {
+            val category = categoryBySourceName[seedMappingResult.second]!!
+            seedMappingResult = category.covertToSeedMapping(seedMappingResult.first)
+        }
+        return seedMappingResult.first
+    }
+
     fun part1(lines: List<String>): Long {
         val categoriesMap = getParsedData(lines).first
         val seeds = getParsedData(lines).second
 
-        val categoryBySourceName = categoriesMap.associateBy { it.sourceName }
-        val locationList = mutableListOf<Long>()
-
-        seeds.forEach { seed ->
-            var seedMappingResult = Pair(seed, "seed")
-            while (seedMappingResult.second != "location") {
-                val category = categoryBySourceName[seedMappingResult.second]!!
-                seedMappingResult = category.covertToSeedMapping(seedMappingResult.first)
-            }
-            locationList.add(seedMappingResult.first)
-        }
-
-        return locationList.min()
+        return seeds.minOfOrNull { getMatchedSeed(categoriesMap, it) }!!
     }
 
     fun part2(lines: List<String>): Long {
-        var categoriesMap = getParsedData(lines).first
-        var seeds = getParsedData(lines).second
+        val categoriesMap = getParsedData(lines).first
+        val seeds = getParsedData(lines).second
+        val pairedSeeds = seeds.chunked(2).map { Pair(it[0], it[1]) }
 
-        return Long.MAX_VALUE
+        return pairedSeeds.minOfOrNull {
+            val start = it.first
+            val end = it.first + it.second
+
+            val res = (start until end).minOf { getMatchedSeed(categoriesMap, it) }
+
+            res
+        }!!
     }
 
     val lines = readFile("day5/Part1&2")
