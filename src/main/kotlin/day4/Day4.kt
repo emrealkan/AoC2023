@@ -1,6 +1,6 @@
 package day4
 
-import readFile
+import util.readFile
 import kotlin.math.pow
 
 val WHITESPACE_PATTERN = "\\s+".toRegex()

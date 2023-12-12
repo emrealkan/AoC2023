@@ -1,6 +1,6 @@
 package day1
 
-import readFile
+import util.readFile
 
 fun main() {
     fun part1(lines: List<String>): Int {

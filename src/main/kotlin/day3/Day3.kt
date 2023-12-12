@@ -2,7 +2,7 @@ package day3
 
 import kotlin.math.max
 import kotlin.math.min
-import readFile
+import util.readFile
 
 val SYMBOL_REGEX = "\\w*[0-9.]+\\w*+".toRegex()
 val DIGIT_REGEX = "\\w*[0-9]+\\w*+".toRegex()

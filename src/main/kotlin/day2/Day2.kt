@@ -1,6 +1,6 @@
 package day2
 
-import readFile
+import util.readFile
 
 val GAME_INFO_PATTERN = "Game (?<gameId>\\d+)".toRegex()
 val BAG_DETAIL_PATTERN = "(?<number>\\d+) (?<color>red|green|blue)".toRegex()
