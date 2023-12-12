@@ -29,7 +29,7 @@ data class CategoryMap(
 
 fun main() {
 
-    fun part1(lines: List<String>): Long {
+    fun getParsedData(lines: List<String>): Pair<MutableList<CategoryMap>, List<Long>> {
         val seeds = lines[0].removePrefix("seeds: ").trim().split("\\s".toRegex()).map { it.toLong() }
         val categoriesMap = mutableListOf<CategoryMap>()
         var rangeMappers = mutableListOf<RangeMap>()
@@ -53,8 +53,16 @@ fun main() {
             }
         }
 
+        return Pair(first = categoriesMap, second = seeds)
+    }
+
+    fun part1(lines: List<String>): Long {
+        val categoriesMap = getParsedData(lines).first
+        val seeds = getParsedData(lines).second
+
         val categoryBySourceName = categoriesMap.associateBy { it.sourceName }
         val locationList = mutableListOf<Long>()
+
         seeds.forEach { seed ->
             var seedMappingResult = Pair(seed, "seed")
             while (seedMappingResult.second != "location") {
@@ -63,9 +71,18 @@ fun main() {
             }
             locationList.add(seedMappingResult.first)
         }
+
         return locationList.min()
     }
 
-    val lines = readFile("day5/Part1")
+    fun part2(lines: List<String>): Long {
+        var categoriesMap = getParsedData(lines).first
+        var seeds = getParsedData(lines).second
+
+        return Long.MAX_VALUE
+    }
+
+    val lines = readFile("day5/Part1&2")
     println("Part One: ${part1(lines)}")
+    println("Part Two: ${part2(lines)}")
 }
