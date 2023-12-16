@@ -15,6 +15,8 @@ enum class HandType(val value: Int) {
 
 fun main() {
 
+    data class Game(val cardsPoint: Int, val bid: Int, val handType: HandType)
+
     fun getHandType(cards: String): HandType {
         val groups = cards.groupingBy { it }.eachCount()
         return when (groups.entries.size) {
@@ -26,27 +28,41 @@ fun main() {
         }
     }
 
-    fun getCardValue(c: Char): Int {
+    fun getHandTypeForPart2(cards: String): HandType {
+        return if (cards.contains('J')) {
+            val jokerTarget = cards.groupingBy { it }
+                .eachCount()
+                .filterKeys { it != 'J' }
+                .maxByOrNull { (_, groupSize) -> groupSize }
+                ?.key ?: 'A'
+
+            val replacedHand = cards.replace('J', jokerTarget)
+
+            getHandType(replacedHand)
+        } else {
+            getHandType(cards)
+        }
+    }
+
+    fun getCardValue(c: Char, isJokerWeakest: Boolean = false): Int {
         return when (c) {
             'A' -> (14)
             'K' -> (13)
             'Q' -> (12)
-            'J' -> (11)
+            'J' -> if (isJokerWeakest) (1) else (11)
             'T' -> (10)
             else -> c.digitToInt()
         }
     }
 
-    data class Game(val cardsPoint: Int, val bid: Int, val handType: HandType)
-
-    fun part1(lines: List<String>): Int {
-        val gamesByHandTypes = lines.map { line ->
+    fun getListOfGamesByHandType(lines: List<String>, isJokerWeakest: Boolean = false): List<List<Game>> {
+        return lines.map { line ->
             val (first, second) = line.split(' ')
             val bid = second.toInt()
-            val handType = getHandType(first)
+            val handType = if(isJokerWeakest) getHandTypeForPart2(first) else getHandType(first)
             val cardPoints =
                 (first.reversed().mapIndexed { index, c ->
-                    (100.0.pow(index.toDouble()) * getCardValue(c)).toInt() //doing 100 pow to make sure each index has enough distance from each other
+                    (100.0.pow(index.toDouble()) * getCardValue(c, isJokerWeakest)).toInt() //doing 100 pow to make sure each index has enough distance from each other
                 }
                     .toList())
                     .reduce { t, u -> (t + u) }
@@ -56,9 +72,11 @@ fun main() {
             .sortedBy { it.handType }
             .groupBy { it.handType }
             .map { it.value }
+    }
 
+    fun calculateTotalWinning(gamesByHandTypes: List<List<Game>>, lineSize: Int): Int {
         var totalScore = 0
-        var currentIndex = lines.size
+        var currentIndex = lineSize
         gamesByHandTypes.forEach { games: List<Game> ->
             val cardPointComparator = Comparator { game1: Game, game2: Game -> game2.cardsPoint - game1.cardsPoint }
             games.sortedWith(cardPointComparator)
@@ -67,10 +85,20 @@ fun main() {
                     currentIndex -= 1
                 }
         }
-
         return totalScore
     }
 
-    val lines = readFile("day7/Part1")
+    fun part1(lines: List<String>): Int {
+        val listOfGamesByHandTypes = getListOfGamesByHandType(lines, false)
+        return calculateTotalWinning(listOfGamesByHandTypes, 1000)
+    }
+
+    fun part2(lines: List<String>): Int {
+        val listOfGamesByHandTypes = getListOfGamesByHandType(lines, true)
+        return calculateTotalWinning(listOfGamesByHandTypes, 1000)
+    }
+
+    val lines = readFile("day7/Part1&2")
     println("Part One: ${part1(lines)}")
+    println("Part Two: ${part2(lines)}")
 }
