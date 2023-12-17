@@ -3,10 +3,17 @@ package day9
 import util.readFile
 
 fun main() {
-    fun part1(lines: List<String>): Int {
-        return Int.MAX_VALUE
+    fun getNext(list: List<Long>): Long {
+        return if (list.all { it == 0L }) 0L
+        else getNext(list.windowed(2).map { it[1] - it[0] }) + list.last()
     }
 
-   val lines = readFile("day8/Part1")
+    fun part1(lines: List<String>): Long {
+        val mappedLines = lines.map{ line -> getNext(line.split(" ").map { it.toLong() }) }
+
+        return mappedLines.sum()
+    }
+
+   val lines = readFile("day9/Part1")
     println("Part One: ${part1(lines)}")
 }
